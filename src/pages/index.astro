@@ -1,0 +1,162 @@
+---
+import Link from "../components/Link.astro";
+import Footer from "../components/Footer.astro";
+
+import { CONFIGURATION } from "../config";
+
+function generateRobots() {
+  if (CONFIGURATION.searchEngines === "no-restrictions") {
+    return "all";
+  }
+
+  if (CONFIGURATION.searchEngines === "restrict-all") {
+    return "none";
+  }
+
+  const config = CONFIGURATION.searchEngines || {
+    indexSite: true,
+    followLinks: true,
+  };
+
+  const tags = [
+    "max-image-preview:large",
+    "max-snippet:-1",
+    "max-video-preview:-1",
+  ];
+
+  if (config.indexSite === true) {
+    tags.push("index");
+  } else if (config.indexSite === false) {
+    tags.push("noindex");
+  }
+
+  if (config.followLinks === true) {
+    tags.push("follow");
+  } else if (config.followLinks === false) {
+    tags.push("nofollow");
+  }
+
+  if (config.archive === false) {
+    tags.push("noarchive");
+  }
+
+  if (config.indexIfEmbedded === true) {
+    tags.push("indexifembedded");
+  }
+
+  if (config.showSnippet === false) {
+    tags.push("nosnippet");
+  }
+
+  return tags.join(", ");
+}
+
+const robots = generateRobots();
+const site = Astro.site!;
+const baseUrl = new URL(
+  import.meta.env.BASE_URL,
+  import.meta.env.DEV === true ? Astro.url : site
+);
+const locale = CONFIGURATION.locale;
+const language = locale.substring(0, 2);
+const title =
+  typeof CONFIGURATION.title === "string"
+    ? CONFIGURATION.title
+    : `${CONFIGURATION.title.firstName} ${CONFIGURATION.title.lastName}`;
+const siteTitle = title + " | Link3";
+const tagline = CONFIGURATION.tagline || siteTitle;
+const imageUrl =
+  CONFIGURATION.avatarUrl || new URL("/avatar.png", baseUrl).toString();
+---
+
+<!DOCTYPE html>
+<html
+  lang={language}
+  class="bg-zinc-100 font-sans text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <title>{siteTitle}</title>
+    <meta property="og:title" content={siteTitle} />
+
+    <meta name="generator" content={Astro.generator} />
+    <meta name="robots" content={robots} />
+
+    <meta property="og:locale" content={locale} />
+    <meta property="og:type" content="profile" />
+    <meta property="og:url" content={site} />
+
+    {
+      typeof CONFIGURATION.title === "object" && (
+        <>
+          <meta
+            property="og:profile:first_name"
+            content={CONFIGURATION.title.firstName}
+          />
+          <meta
+            property="og:profile:last_name"
+            content={CONFIGURATION.title.lastName}
+          />
+        </>
+      )
+    }
+    {
+      CONFIGURATION.username && (
+        <meta property="og:profile:username" content={CONFIGURATION.username} />
+      )
+    }
+
+    <meta name="description" content={tagline} />
+    <meta property="og:description" content={tagline} />
+    <meta name="twitter:description" content={tagline} />
+
+    <meta property="og:image" content={imageUrl} />
+    <meta property="og:image:alt" content={title} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <header class="mx-auto max-w-7xl py-16 px-4 sm:py-10 sm:px-6 lg:px-8">
+      <div class="text-center">
+        <img
+          class="mx-auto h-44 w-44 rounded-full xl:h-56 xl:w-56"
+          src={imageUrl}
+          alt={title}
+        />
+
+        <p
+          class="mt-5 text-4xl font-bold tracking-tight text-blue-700 dark:text-blue-500 sm:text-5xl lg:text-6xl"
+        >
+          {title}
+        </p>
+
+        {
+          CONFIGURATION.username && (
+            <h2 class="mt-2 text-xl font-semibold opacity-80">
+              @{CONFIGURATION.username}
+            </h2>
+          )
+        }
+
+        {
+          CONFIGURATION.tagline && (
+            <h2 class="mt-5 text-xl font-semibold">{CONFIGURATION.tagline}</h2>
+          )
+        }
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-lg px-6 sm:px-0">
+      <div class="mx-auto max-w-3xl">
+        <div class="flex flex-col gap-4">
+          {CONFIGURATION.links.map((link) => <Link link={link} />)}
+        </div>
+      </div>
+    </main>
+
+    {CONFIGURATION.showFooter !== false && <Footer title={title} />}
+  </body>
+</html>

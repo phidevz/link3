@@ -1,0 +1,25 @@
+---
+import type { IconDefinition } from "@fortawesome/free-brands-svg-icons";
+
+export interface Props {
+  faIcon: IconDefinition;
+  color?: string;
+}
+
+const { faIcon, color } = Astro.props;
+
+const [width, height, ligatures, unicode, svgPathData] = faIcon.icon;
+
+const cleanedSvgPathData =
+  typeof svgPathData === "string" ? svgPathData : "testtest";
+---
+
+<span aria-hidden="true" class="flex justify-center space-x-2">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox={`0 0 ${width} ${height}`}
+    class="h-7 w-7 flex-none"
+  >
+    <path fill={color || "currentColor"} d={cleanedSvgPathData}></path>
+  </svg>
+</span>

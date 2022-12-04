@@ -1,0 +1,29 @@
+---
+import type { Link } from "../config";
+import FaIcon from "./FaIcon.astro";
+import Icon from "./Icon.astro";
+
+export interface Props {
+  link: Link;
+}
+
+const { link } = Astro.props;
+---
+
+<a
+  role="link"
+  title=""
+  href={link.href}
+  class="flex flex-row items-center justify-center gap-3 rounded-lg border border-zinc-500 bg-white px-6 py-4 shadow-md focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 hover:border-blue-400 hover:shadow-xl focus:outline-none dark:border-zinc-400 dark:bg-zinc-900"
+>
+  {"builtinIcon" in link && <Icon icon={link.builtinIcon} />}
+  {
+    "fontawesomeIcon" in link && (
+      <FaIcon
+        faIcon={link.fontawesomeIcon.icon}
+        color={link.fontawesomeIcon.color}
+      />
+    )
+  }
+  <span class="text-xl font-medium">{link.title}</span>
+</a>
