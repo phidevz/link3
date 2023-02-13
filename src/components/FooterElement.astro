@@ -1,0 +1,16 @@
+---
+import type { FooterLink } from "../optionTypes";
+
+export interface Props {
+  link: FooterLink;
+}
+
+const { link } = Astro.props;
+---
+
+<>
+  <span> ●</span>
+  <a class="underline-offset-2 hover:underline" href={link.href}>
+    {link.label}
+  </a>
+</>

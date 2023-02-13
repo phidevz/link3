@@ -1,67 +1,20 @@
-import type { IconDefinition } from "@fortawesome/fontawesome-common-types";
+import type { Configuration } from "./optionTypes";
+
 import { faYahoo } from "@fortawesome/free-brands-svg-icons";
 import { faShoppingBag } from "@fortawesome/free-solid-svg-icons";
 
-export type BuiltinIcon =
-  | "behance"
-  | "discord"
-  | "github"
-  | "facebook"
-  | "instagram"
-  | "google"
-  | "linkedin"
-  | "pinterest"
-  | "vkontakte"
-  | "stackoverflow"
-  | "telegram"
-  | "youtube"
-  | "tiktok"
-  | "snapchat"
-  | "slack"
-  | "messenger"
-  | "dribbble"
-  | "reddit"
-  | "twitter"
-  | "whatsapp"
-  | "twitch";
-
-export type Link = {
-  title: string;
-  href: string;
-} & (
-  | {
-      fontawesomeIcon: {
-        icon: IconDefinition;
-        color?: string;
-      };
-    }
-  | { builtinIcon: BuiltinIcon }
-);
-
-export type Configuration = {
-  title: string | { firstName: string; lastName: string };
-  username?: string;
-  locale: string;
-  tagline?: string;
-  showFooter?: boolean;
-  avatarUrl?: string;
-  searchEngines?:
-    | "no-restrictions"
-    | "restrict-all"
-    | {
-        indexSite?: boolean;
-        followLinks?: boolean;
-        archive?: boolean;
-        showSnippet?: boolean;
-        indexIfEmbedded?: boolean;
-      };
-  links: Link[];
-};
-
-export const CONFIGURATION: Configuration = {
+export const configuration: Configuration = {
   title: { firstName: "Jane", lastName: "Doe" },
   username: "janedoe",
+  tagline: "🗡Survival 🏕Outdoor",
   locale: "en_US",
+  footer: {
+    imprint: { href: "https://example.com/imprint", label: "Imprint" },
+    privacyPolicy: {
+      href: "https://example.com/privacy",
+      label: "Privacy Policy",
+    },
+  },
   links: [
     {
       title: "YouTube",

@@ -2,18 +2,19 @@
 import Link from "../components/Link.astro";
 import Footer from "../components/Footer.astro";
 
-import { CONFIGURATION } from "../config";
+import { parse } from "twemoji-parser";
+import { configuration } from "../config";
 
 function generateRobots() {
-  if (CONFIGURATION.searchEngines === "no-restrictions") {
+  if (configuration.searchEngines === "no-restrictions") {
     return "all";
   }
 
-  if (CONFIGURATION.searchEngines === "restrict-all") {
+  if (configuration.searchEngines === "restrict-all") {
     return "none";
   }
 
-  const config = CONFIGURATION.searchEngines || {
+  const config = configuration.searchEngines || {
     indexSite: true,
     followLinks: true,
   };
@@ -51,22 +52,59 @@ function generateRobots() {
   return tags.join(", ");
 }
 
+async function parseEmojis(input: string | undefined) {
+  if (!input) {
+    return undefined;
+  }
+
+  const parsedDownloaded = await Promise.all(
+    parse(input, { assetType: "svg", buildUrl: (codepoints, assetType) => `https://twemoji.maxcdn.com/v/14.0.2/svg/${codepoints}.svg` }).map((emoji) => {
+      return fetch(emoji.url)
+        .then((svg) => svg.text())
+        .then((svg) => ({
+          ...emoji,
+          svg: `<span class="inline-flex [height:1em] ml-[0.8em] mr-[0.4em]">${svg}</span>`,
+        }));
+    })
+  );
+
+  const html = parsedDownloaded.reduce(
+    ({ text, lastIndex }, emoji) => {
+      const textFromLastEmojiToThis = input.substring(
+        lastIndex,
+        emoji.indices[0]
+      );
+
+      return {
+        text: `${text}${textFromLastEmojiToThis}${emoji.svg}`,
+        lastIndex: emoji.indices[1],
+      };
+    },
+    { text: "", lastIndex: 0 }
+  );
+
+  return html.text + input.substring(html.lastIndex);
+}
+
 const robots = generateRobots();
 const site = Astro.site!;
 const baseUrl = new URL(
   import.meta.env.BASE_URL,
   import.meta.env.DEV === true ? Astro.url : site
 );
-const locale = CONFIGURATION.locale;
+const locale = configuration.locale;
 const language = locale.substring(0, 2);
 const title =
-  typeof CONFIGURATION.title === "string"
-    ? CONFIGURATION.title
-    : `${CONFIGURATION.title.firstName} ${CONFIGURATION.title.lastName}`;
+  typeof configuration.title === "string"
+    ? configuration.title
+    : `${configuration.title.firstName} ${configuration.title.lastName}`;
 const siteTitle = title + " | Link3";
-const tagline = CONFIGURATION.tagline || siteTitle;
+const tagline = configuration.tagline || siteTitle;
 const imageUrl =
-  CONFIGURATION.avatarUrl || new URL("/avatar.png", baseUrl).toString();
+  configuration.avatarUrl || new URL("/avatar.png", baseUrl).toString();
+
+const parsedTagline = await parseEmojis(configuration.tagline);
+const showFooter = configuration.footer || "show";
 ---
 
 <!DOCTYPE html>
@@ -90,22 +128,22 @@ const imageUrl =
     <meta property="og:url" content={site} />
 
     {
-      typeof CONFIGURATION.title === "object" && (
+      typeof configuration.title === "object" && (
         <>
           <meta
             property="og:profile:first_name"
-            content={CONFIGURATION.title.firstName}
+            content={configuration.title.firstName}
           />
           <meta
             property="og:profile:last_name"
-            content={CONFIGURATION.title.lastName}
+            content={configuration.title.lastName}
           />
         </>
       )
     }
     {
-      CONFIGURATION.username && (
-        <meta property="og:profile:username" content={CONFIGURATION.username} />
+      configuration.username && (
+        <meta property="og:profile:username" content={configuration.username} />
       )
     }
 
@@ -134,16 +172,18 @@ const imageUrl =
         </p>
 
         {
-          CONFIGURATION.username && (
+          configuration.username && (
             <h2 class="mt-2 text-xl font-semibold opacity-80">
-              @{CONFIGURATION.username}
+              @{configuration.username}
             </h2>
           )
         }
 
         {
-          CONFIGURATION.tagline && (
-            <h2 class="mt-5 text-xl font-semibold">{CONFIGURATION.tagline}</h2>
+          parsedTagline && (
+            <h2 class="mt-5 flex items-center justify-center text-xl font-semibold">
+              <Fragment set:html={parsedTagline} />
+            </h2>
           )
         }
       </div>
@@ -152,11 +192,11 @@ const imageUrl =
     <main class="mx-auto max-w-lg px-6 sm:px-0">
       <div class="mx-auto max-w-3xl">
         <div class="flex flex-col gap-4">
-          {CONFIGURATION.links.map((link) => <Link link={link} />)}
+          {configuration.links.map((link) => <Link link={link} />)}
         </div>
       </div>
     </main>
 
-    {CONFIGURATION.showFooter !== false && <Footer title={title} />}
+    {showFooter !== "hide" && <Footer title={title} options={showFooter} />}
   </body>
 </html>

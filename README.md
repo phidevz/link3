@@ -1,5 +1,7 @@
 # ![screenshoot](public/favicon.svg) Link3
 
+[![Playwright Tests](https://github.com/phidevz/link3/actions/workflows/playwright.yml/badge.svg)](https://github.com/phidevz/link3/actions/workflows/playwright.yml)
+
 ![screenshoot](readme.png)
 
 Link3 is a free clone of LinkTree, a popular link aggregator for social media. The name is coming from a mispronounced "link three".
@@ -29,23 +31,22 @@ Open `src/config.ts` and edit the variables (except links) to your liking.
 The schema is:
 
 ```typescript
-type Configuration = {
-  title: string | { firstName: string; lastName: string };
+export type Configuration = {
+  title: string | { firstName: string; lastName: string; };
   username?: string;
   locale: string;
   tagline?: string;
-  showFooter?: boolean;
+  footer?: "show" | "hide" | FooterOptions;
   avatarUrl?: string;
-  searchEngines?:
-    | "no-restrictions"
-    | "restrict-all"
-    | {
-        indexSite?: boolean;
-        followLinks?: boolean;
-        archive?: boolean;
-        showSnippet?: boolean;
-        indexIfEmbedded?: boolean;
-      };
+  searchEngines?: "no-restrictions" |
+  "restrict-all" |
+  {
+    indexSite?: boolean;
+    followLinks?: boolean;
+    archive?: boolean;
+    showSnippet?: boolean;
+    indexIfEmbedded?: boolean;
+  };
   links: Link[];
 };
 ```
@@ -67,7 +68,7 @@ In the example, you can see there are five links provided.
 
 To add a new link, place a comma behind the last entry (denoted by the last closing `}` before the `]`) and place a new object:
 
-```
+```js
 {
   title: "The title you wish",
   href: "https://example.com/where/you/want/the/link/to/point",
@@ -130,7 +131,30 @@ Replace the file `public/avatar.png` with your own avatar. If you want to use a 
 
 You can also specify an externally hosted image by setting the `avatarUrl` in the configuration. Be sure that access to the external image is not restricted by CORS settings.
 
-### 5. **Deploy Your Link3**
+### 5. **Customize the footer (optional)**
+
+If you want to hide the footer, use the config option
+
+```javascript
+footer: "hide"
+```
+
+In case you want to supply a link to a privacy policy and/or an imprint, you can specify details as such:
+
+```javascript
+footer: {
+  imprint: {
+    href: "https://example.com/imprint",
+    label: "Imprint"
+  },
+  privacyPolicy: {
+    href: "https://example.com/privacy",
+    label: "Privacy Policy",
+  }
+}
+```
+
+### 6. **Deploy Your Link3**
 
 Use the command `npm run build` and copy all assets from the `dist/` folder to a static web hosting service.
 

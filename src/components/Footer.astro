@@ -1,17 +1,31 @@
 ---
+import type { FooterOptions } from "../optionTypes";
+import FooterElement from "./FooterElement.astro";
+
 export interface Props {
   title: string;
+  options: "show" | FooterOptions;
 }
 
-const { title } = Astro.props;
+const { title, options } = Astro.props;
 ---
 
 <footer
   class="mx-auto max-w-7xl py-12 px-4 sm:px-6 md:flex md:items-center md:justify-center lg:px-8"
 >
-  <div class="mt-8 md:order-1 md:mt-0">
-    <p class="text-center text-base text-zinc-500">
-      &copy; 2022 {title}
-    </p>
+  <div
+    class="mt-8 flex gap-2 text-center text-base text-zinc-500 md:order-1 md:mt-0"
+  >
+    <span>&copy; 2022 {title}</span>
+    {
+      options !== "show" && options.privacyPolicy && (
+        <FooterElement link={options.privacyPolicy} />
+      )
+    }
+    {
+      options !== "show" && options.imprint && (
+        <FooterElement link={options.imprint} />
+      )
+    }
   </div>
 </footer>
