@@ -58,7 +58,11 @@ async function parseEmojis(input: string | undefined) {
   }
 
   const parsedDownloaded = await Promise.all(
-    parse(input, { assetType: "svg", buildUrl: (codepoints, assetType) => `https://twemoji.maxcdn.com/v/14.0.2/svg/${codepoints}.svg` }).map((emoji) => {
+    parse(input, {
+      assetType: "svg",
+      buildUrl: (codepoints, assetType) =>
+        `https://twemoji.maxcdn.com/v/14.0.2/svg/${codepoints}.svg`,
+    }).map((emoji) => {
       return fetch(emoji.url)
         .then((svg) => svg.text())
         .then((svg) => ({
@@ -181,7 +185,7 @@ const showFooter = configuration.footer || "show";
 
         {
           parsedTagline && (
-            <h2 class="mt-5 flex items-center justify-center text-xl font-semibold">
+            <h2 class="mt-5 flex flex-wrap items-center justify-center text-xl font-semibold">
               <Fragment set:html={parsedTagline} />
             </h2>
           )
