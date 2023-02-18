@@ -9,7 +9,7 @@ const { link } = Astro.props;
 ---
 
 <>
-  <span> ●</span>
+  <span class="hidden sm:block"> ●</span>
   <a class="underline-offset-2 hover:underline" href={link.href}>
     {link.label}
   </a>

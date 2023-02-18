@@ -11,12 +11,12 @@ const { title, options } = Astro.props;
 ---
 
 <footer
-  class="mx-auto max-w-7xl py-12 px-4 sm:px-6 md:flex md:items-center md:justify-center lg:px-8"
+  class="mx-auto flex max-w-7xl items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
 >
   <div
-    class="mt-8 flex gap-2 text-center text-base text-zinc-500 md:order-1 md:mt-0"
+    class="mt-8 flex flex-col text-center text-base text-zinc-500 sm:flex-row sm:gap-2 md:order-1 md:mt-0"
   >
-    <span>&copy; 2022 {title}</span>
+    <span class="mb-3 sm:mb-0">&copy; 2022 {title}</span>
     {
       options !== "show" && options.privacyPolicy && (
         <FooterElement link={options.privacyPolicy} />

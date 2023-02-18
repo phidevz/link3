@@ -59,16 +59,21 @@ async function parseEmojis(input: string | undefined) {
 
   const parsedDownloaded = await Promise.all(
     parse(input, {
-      assetType: "svg",
-      buildUrl: (codepoints, assetType) =>
-        `https://twemoji.maxcdn.com/v/14.0.2/svg/${codepoints}.svg`,
-    }).map((emoji) => {
-      return fetch(emoji.url)
-        .then((svg) => svg.text())
-        .then((svg) => ({
-          ...emoji,
-          svg: `<span class="inline-flex [height:1em] ml-[0.8em] mr-[0.4em]">${svg}</span>`,
-        }));
+      assetType: "png",
+      buildUrl: (codepoints, assetType) => {
+        const folder = assetType === "svg" ? "svg" : "72x72";
+
+        return `https://twemoji.maxcdn.com/v/14.0.2/${folder}/${codepoints}.${assetType}`;
+      },
+    }).map(async (emoji) => {
+      const response = await fetch(emoji.url);
+      const buffer = await response.arrayBuffer();
+      const base64Data = Buffer.from(buffer).toString("base64");
+      const image = `data:image/png;base64,${base64Data}`;
+      return {
+        ...emoji,
+        png: `<img class="inline-flex [height:1em] ml-[0.8em] mr-[0.4em]" src="${image}"></img>`,
+      };
     })
   );
 
@@ -80,7 +85,7 @@ async function parseEmojis(input: string | undefined) {
       );
 
       return {
-        text: `${text}${textFromLastEmojiToThis}${emoji.svg}`,
+        text: `${text}${textFromLastEmojiToThis}${emoji.png}`,
         lastIndex: emoji.indices[1],
       };
     },
@@ -177,7 +182,7 @@ const showFooter = configuration.footer || "show";
 
         {
           configuration.username && (
-            <h2 class="mt-2 text-xl font-semibold opacity-80">
+            <h2 class="mt-2 text-xl font-semibold opacity-80 ">
               @{configuration.username}
             </h2>
           )
